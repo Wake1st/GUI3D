@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8pdlyyudpf5j"]
+
+[ext_resource type="Script" uid="uid://5f1f8n1nmxta" path="res://addons/gui3d/ui_element_3d/ui_element_3d.gd" id="1_e6sa7"]
+
+[node name="UIElement3D" type="MeshInstance3D"]
+script = ExtResource("1_e6sa7")

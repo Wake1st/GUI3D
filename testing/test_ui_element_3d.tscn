@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://8dx7v4h4grwf"]
+
+[ext_resource type="PackedScene" uid="uid://cj3kjmierp73k" path="res://testing/custom_element_3d.tscn" id="1_bw4vf"]
+[ext_resource type="Script" uid="uid://bwnk2bncve0px" path="res://testing/test_ui_element_3d.gd" id="1_u3tte"]
+
+[sub_resource type="Environment" id="Environment_u3tte"]
+background_mode = 1
+background_color = Color(0.370409, 0.818385, 1, 1)
+
+[node name="TestUIElement3D" type="Node3D"]
+script = ExtResource("1_u3tte")
+
+[node name="UIElement3D" parent="." node_paths=PackedStringArray("behavior_states") instance=ExtResource("1_bw4vf")]
+behavior_states = []
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.11618)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_u3tte")
