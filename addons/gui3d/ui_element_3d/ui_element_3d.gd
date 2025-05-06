@@ -10,6 +10,8 @@ enum LOOPING_STATE {
 
 @export var behavior_states: Array[UIBehaviorState]
 
+var initial_node: Node3D
+
 var interupting: bool = false
 var isFocused: bool = false
 var isSelected: bool = false
@@ -24,6 +26,9 @@ var runningBehaviorCount: int
 
 #region IncludedFunctions
 func _ready() -> void:
+	# store self for values
+	initial_node = self as Node3D
+	
 	# create a static body child
 	create_trimesh_collision()
 	
@@ -34,6 +39,7 @@ func _ready() -> void:
 	
 	# connect all behaviors
 	for bs in behavior_states:
+		bs.behavior.setup(self)
 		bs.behavior.finished.connect(_on_behavior_finished)
 
 

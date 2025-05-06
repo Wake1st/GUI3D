@@ -36,16 +36,16 @@ These behaviors are assigned to a state, and will occur when said state is activ
 
 #### Methods
 
-_ `_while_idle()`: runs while element is idle
-- `_enter_focus()`: runs when an element is in focus
-- `_while_focus()`: runs while an element has focus
-- `_exit_focus()`: runs when an element looses focus
-- `_on_selection()`: runs when an element is selected 
-- `_while_selected()`: runs while an element is selected 
-- `_off_selection()`: runs when an element is unselected 
+- `_while_idle()`: run when idle
+_ `_focus_changed()`: runs when gained/lost focus
+- `_while_focused()`: runs while focused
+- `_select_changed()`: runs when gained/lost selection
+- `_while_selected()`: runs while selected
 
 
 ## Dev Notes
 
 - this feels overdesigned, needs stricter conditions
+- follow the new method approach
+	- reverse for state change
 - does this really need to be an editor plugin?

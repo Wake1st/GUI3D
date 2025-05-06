@@ -10,6 +10,9 @@ signal finished()
 
 var tween: Tween
 
+func setup(element: UIElement3D) -> void:
+	pass
+
 
 ## Override to implement specific behavior
 func run() -> void:

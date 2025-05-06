@@ -10,12 +10,29 @@ var original_position: Vector3
 var original_rotation: Vector3
 var original_scale: Vector3
 
+var assigned_element: UIElement3D
+
+
+func setup(element: UIElement3D) -> void:
+	# store acting element
+	assigned_element = element
+	
+	# store initial states
+	original_position = element.position
+	original_rotation = element.rotation
+	original_scale = element.scale
+
 
 func run() -> void:
-	# store initial states
-	original_position = get_parent().get_parent().get_parent().position
-	original_rotation = get_parent().get_parent().get_parent().rotation
-	original_scale = get_parent().get_parent().get_parent().scale
+	print(
+		("assigned_element.position: %s\toriginal_position: %s\n" \
+		+ "assigned_element.rotation: %s\toriginal_rotation: %s\n" \
+		+ "assigned_element.scale: %s\toriginal_scale: %s\n") % [
+		assigned_element.position, original_position,
+		assigned_element.rotation, original_rotation,
+		assigned_element.scale, original_scale,
+		]
+	)
 	
 	# execute transform behavior
 	_perform_transform(
@@ -34,12 +51,22 @@ func run() -> void:
 
 func reset() -> void:
 	# stop tween
-	tween.stop()
+	tween.kill()
 	
 	# restore initial states
-	get_parent().get_parent().get_parent().position = original_position
-	get_parent().get_parent().get_parent().rotation = original_rotation
-	get_parent().get_parent().get_parent().scale = original_scale
+	assigned_element.position = original_position
+	assigned_element.rotation = original_rotation
+	assigned_element.scale = original_scale
+	
+	print(
+		("assigned_element.position: %s\toriginal_position: %s\n" \
+		+ "assigned_element.rotation: %s\toriginal_rotation: %s\n" \
+		+ "assigned_element.scale: %s\toriginal_scale: %s\n") % [
+		assigned_element.position, original_position,
+		assigned_element.rotation, original_rotation,
+		assigned_element.scale, original_scale,
+		]
+	)
 
 
 func _reverse() -> void:
@@ -62,19 +89,19 @@ func _perform_transform(
 	tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(
-		get_parent().get_parent().get_parent(), 
+		assigned_element, 
 		"position", 
 		target_position,
 		duration
 	)
 	tween.tween_property(
-		get_parent().get_parent().get_parent(),
+		assigned_element,
 		"rotation",
 		target_rotation,
 		duration
 	)
 	tween.tween_property(
-		get_parent().get_parent().get_parent(),
+		assigned_element,
 		"scale",
 		target_scale,
 		duration
