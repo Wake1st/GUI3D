@@ -2,46 +2,46 @@ class_name UIElement3D
 extends MeshInstance3D
 
 
-enum LOOPING_STATE {
-	LOOP,
-	TRANSITION,
-	NONE,
-}
+@export_group("Behaviors")
+@export_subgroup("While Idle", "idl_whl_")
+@export var idl_whl_behaviors: Array[UIBehavior]
+@export_subgroup("Focus Changed", "foc_chg_")
+@export var foc_chg_behaviors: Array[UIBehavior]
+@export_subgroup("While Focused", "foc_whl_")
+@export var foc_whl_behaviors: Array[UIBehavior]
+@export_subgroup("Select Changed", "sel_chg_")
+@export var sel_chg_behaviors: Array[UIBehavior]
+@export_subgroup("While Selected", "sel_whl_")
+@export var sel_whl_behaviors: Array[UIBehavior]
 
-@export var behavior_states: Array[UIBehaviorState]
-
-var initial_node: Node3D
-
-var interupting: bool = false
-var isFocused: bool = false
-var isSelected: bool = false
+var idl_whl_has_behaviors: bool
+var foc_chg_has_behaviors: bool
+var foc_whl_has_behaviors: bool
+var sel_chg_has_behaviors: bool
+var sel_whl_has_behaviors: bool
 
 var current_state: UIBehaviorState.UIInteractionState
 var next_state: UIBehaviorState.UIInteractionState
-var looping_state: LOOPING_STATE
 
 var runningBehaviors: Array[UIBehavior]
 var runningBehaviorCount: int
 
+var interupting: bool = false
+var isFocused: bool = false
+var isSelected: bool = false
+var loopingForward: bool = false
+
 
 #region IncludedFunctions
 func _ready() -> void:
-	# store self for values
-	initial_node = self as Node3D
-	
-	# create a static body child
-	create_trimesh_collision()
-	
-	# connect collision shape
-	var staticBody: StaticBody3D = get_child(get_child_count() - 1)
-	staticBody.mouse_entered.connect(_on_mouse_entered)
-	staticBody.mouse_exited.connect(_on_mouse_exited)
+	_setup_collition()
 	
 	# connect all behaviors
-	for bs in behavior_states:
-		bs.behavior.setup(self)
-		bs.behavior.finished.connect(_on_behavior_finished)
-
+	idl_whl_has_behaviors = _setup_behaviors(idl_whl_behaviors)
+	foc_chg_has_behaviors = _setup_behaviors(foc_chg_behaviors)
+	foc_whl_has_behaviors = _setup_behaviors(foc_whl_behaviors)
+	sel_chg_has_behaviors = _setup_behaviors(sel_chg_behaviors)
+	sel_whl_has_behaviors = _setup_behaviors(sel_whl_behaviors)
 
 func _process(_delta) -> void:
 	# don't allow adding behaviors unless interupted
@@ -50,22 +50,50 @@ func _process(_delta) -> void:
 		interupting = false
 		
 		# only run when finished
-		#print("loop: %s\tbehavior: %s" % [looping_state, current_state])
-		match looping_state:
-			LOOPING_STATE.LOOP:
-				_run_looping_behaviors()
-			LOOPING_STATE.TRANSITION:
-				match current_state:
-					UIBehaviorState.UIInteractionState.ENTER_FOCUS:
-						_enter_focus()
-					UIBehaviorState.UIInteractionState.EXIT_FOCUS:
-						_exit_focus()
-					UIBehaviorState.UIInteractionState.ENTER_SELECT:
-						_enter_select()
-					UIBehaviorState.UIInteractionState.EXIT_SELECT:
-						_exit_select()
+		match current_state:
+			UIBehaviorState.UIInteractionState.WHILE_IDLE:
+				if idl_whl_has_behaviors:
+					# the next state is the current state
+					loopingForward = not loopingForward
+					next_state = current_state
+					_run_behaviors(idl_whl_behaviors, loopingForward)
+			UIBehaviorState.UIInteractionState.ENTER_FOCUS:
+				if foc_chg_has_behaviors:
+					next_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
+					_run_behaviors(foc_chg_behaviors, true)
+				else:
+					current_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
+			UIBehaviorState.UIInteractionState.WHILE_FOCUS:
+				if foc_whl_has_behaviors:
+					# the next state is the current state
+					loopingForward = not loopingForward
+					next_state = current_state
+					_run_behaviors(foc_whl_behaviors, loopingForward)
+			UIBehaviorState.UIInteractionState.EXIT_FOCUS:
+				if foc_chg_has_behaviors:
+					next_state = UIBehaviorState.UIInteractionState.WHILE_IDLE
+					_run_behaviors(foc_chg_behaviors, false)
+				else:
+					current_state = UIBehaviorState.UIInteractionState.WHILE_IDLE
+			UIBehaviorState.UIInteractionState.ENTER_SELECT:
+				if sel_chg_has_behaviors:
+					next_state = UIBehaviorState.UIInteractionState.WHILE_SELECT
+					_run_behaviors(sel_chg_behaviors, true)
+				else:
+					current_state = UIBehaviorState.UIInteractionState.WHILE_SELECT
+			UIBehaviorState.UIInteractionState.WHILE_SELECT:
+				if sel_whl_has_behaviors:
+					# the next state is the current state
+					loopingForward = not loopingForward
+					next_state = current_state
+					_run_behaviors(sel_whl_behaviors, loopingForward)
+			UIBehaviorState.UIInteractionState.EXIT_SELECT:
+				if sel_chg_has_behaviors:
+					next_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
+					_run_behaviors(sel_chg_behaviors, false)
+				else:
+					current_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
 #endregion
-
 
 #region InterruptFunctions
 func focus(value: bool = true) -> void:
@@ -86,11 +114,8 @@ func focus(value: bool = true) -> void:
 	# no matter the state, override the value
 	if value:
 		current_state = UIBehaviorState.UIInteractionState.ENTER_FOCUS
-		looping_state = LOOPING_STATE.TRANSITION
 	else:
 		current_state = UIBehaviorState.UIInteractionState.EXIT_FOCUS
-		looping_state = LOOPING_STATE.TRANSITION
-
 
 func select(value: bool = true) -> void:
 	# toggle interupt
@@ -106,91 +131,50 @@ func select(value: bool = true) -> void:
 	# no matter the state, override the value
 	if value:
 		current_state = UIBehaviorState.UIInteractionState.ENTER_SELECT
-		looping_state = LOOPING_STATE.TRANSITION
 	else:
 		current_state = UIBehaviorState.UIInteractionState.EXIT_SELECT
-		looping_state = LOOPING_STATE.TRANSITION
 #endregion
 
+#region InternalFunctions
+func _setup_collition() -> void:
+	# create a static body child
+	create_trimesh_collision()
+	
+	# connect collision shape
+	var staticBody: StaticBody3D = get_child(0)
+	staticBody.mouse_entered.connect(_on_mouse_entered)
+	staticBody.mouse_exited.connect(_on_mouse_exited)
 
-#region BehaviorFunctions
-func _run_looping_behaviors() -> void:
+func _setup_behaviors(behaviors: Array[UIBehavior]) -> bool:
+	for behavior in behaviors:
+		behavior.setup(self)
+		behavior.finished.connect(_on_behavior_finished)
+	return behaviors.size() > 0
+
+func _run_behaviors(behaviors: Array[UIBehavior], forward: bool = true) -> void:
 	# find behaviors with matching state
 	runningBehaviors.clear()
-	for bs: UIBehaviorState in behavior_states:
-		if bs.interaction_state == current_state:
-			runningBehaviors.push_back(bs.behavior)
-	
-	# set the number of behaviors to run
-	runningBehaviorCount = runningBehaviors.size()
-	if runningBehaviorCount == 0:
-		# nothing to loop
-		looping_state = LOOPING_STATE.NONE
-	else:
-		# run the behaviors
-		for behavior in runningBehaviors:
-			behavior.run()
-
-
-func _enter_focus() -> void:
-	# first, set the transition states
-	next_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
-	
-	# run what behaviors exist
-	_run_transition_behaviors()
-
-
-func _exit_focus() -> void:
-	# first, set the transition state
-	next_state = UIBehaviorState.UIInteractionState.WHILE_IDLE
-	
-	# run what behaviors exist
-	_run_transition_behaviors()
-
-
-func _enter_select() -> void:
-	# first, set the transition state
-	next_state = UIBehaviorState.UIInteractionState.WHILE_SELECT
-	
-	# run what behaviors exist
-	_run_transition_behaviors()
-
-
-func _exit_select() -> void:
-	# first, set the transition state
-	next_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
-	
-	# run what behaviors exist
-	_run_transition_behaviors()
-
-
-func _run_transition_behaviors() -> void:
-	# find behaviors with matching state
-	runningBehaviors.clear()
-	for bs: UIBehaviorState in behavior_states:
-		if bs.interaction_state == current_state:
-			runningBehaviors.push_back(bs.behavior)
+	for behavior: UIBehavior in behaviors:
+		runningBehaviors.push_back(behavior)
 	
 	# set the number of behaviors to run
 	runningBehaviorCount = runningBehaviors.size()
 	
-	# if no behaviors, simply transition
-	if runningBehaviorCount == 0:
-		_on_behavior_finished()
-	else:
-		# run the behaviors
-		for behavior in runningBehaviors:
-			behavior.run()
+	# run the behaviors
+	for behavior in runningBehaviors:
+		var tween = get_tree().create_tween()
+		if forward:
+			behavior.run(tween)
+		else:
+			behavior.reverse(tween)
 #endregion
-
 
 #region InternalHanders
 func _on_behavior_finished() -> void:
 	# check if it's time to progress,
 	# only transition states if transition required
 	runningBehaviorCount -= 1
-	if runningBehaviorCount <= 0 and looping_state == LOOPING_STATE.TRANSITION:
-		looping_state = LOOPING_STATE.LOOP
+	if runningBehaviorCount <= 0:
 		current_state = next_state
 
 func _on_mouse_entered() -> void:

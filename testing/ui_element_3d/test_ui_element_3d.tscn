@@ -1,0 +1,27 @@
+[gd_scene load_steps=8 format=3 uid="uid://8dx7v4h4grwf"]
+
+[ext_resource type="Script" uid="uid://bwnk2bncve0px" path="res://testing/ui_element_3d/test_ui_element_3d.gd" id="1_u3tte"]
+[ext_resource type="PackedScene" uid="uid://c8pdlyyudpf5j" path="res://addons/gui3d/ui_element_3d/ui_element_3d.tscn" id="2_80fue"]
+[ext_resource type="Script" uid="uid://bbpn8ap46phii" path="res://addons/gui3d/behaviors/ui_behavior.gd" id="3_qtedj"]
+[ext_resource type="Resource" uid="uid://8ak4bgbhtced" path="res://testing/behaviors/scaling_behavior.tres" id="4_qurmq"]
+[ext_resource type="Resource" uid="uid://dnqcvml8egf4w" path="res://testing/behaviors/bobbing_behavior.tres" id="5_qurmq"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_qurmq"]
+
+[sub_resource type="Environment" id="Environment_u3tte"]
+background_mode = 1
+background_color = Color(0.370409, 0.818385, 1, 1)
+
+[node name="TestUIElement3D" type="Node3D"]
+script = ExtResource("1_u3tte")
+
+[node name="UIElement3D" parent="." instance=ExtResource("2_80fue")]
+mesh = SubResource("QuadMesh_qurmq")
+foc_chg_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("4_qurmq")])
+sel_whl_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("5_qurmq")])
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.0031)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_u3tte")

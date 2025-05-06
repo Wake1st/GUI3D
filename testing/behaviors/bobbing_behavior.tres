@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="TransformUIBehavior" load_steps=2 format=3 uid="uid://dnqcvml8egf4w"]
+
+[ext_resource type="Script" uid="uid://cvx8k4s4ujkdr" path="res://addons/gui3d/behaviors/transform_ui_behavior.gd" id="1_e43x4"]
+
+[resource]
+script = ExtResource("1_e43x4")
+adjusted_position = Vector3(0, 0, 0)
+adjusted_rotation = Vector3(0, 0, 0)
+adjusted_scale = Vector3(0.4, 0, 0)
+duration = 0.8
+metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"

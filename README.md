@@ -36,16 +36,13 @@ These behaviors are assigned to a state, and will occur when said state is activ
 
 #### Methods
 
-- `_while_idle()`: run when idle
-_ `_focus_changed()`: runs when gained/lost focus
-- `_while_focused()`: runs while focused
-- `_select_changed()`: runs when gained/lost selection
-- `_while_selected()`: runs while selected
+- `_run_behaviors()`: runs the behaviors for the current state
 
 
 ## Dev Notes
 
-- this feels overdesigned, needs stricter conditions
-- follow the new method approach
-	- reverse for state change
+- ~this feels overdesigned, needs stricter conditions~
+- ~follow the new method approach~
+	- ~reverse for state change~
+- working much better now, easier to read, and more stable
 - does this really need to be an editor plugin?

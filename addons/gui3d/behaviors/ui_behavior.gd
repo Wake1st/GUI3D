@@ -1,26 +1,32 @@
 @icon("res://addons/gui3d/behaviors/behavior_icon.png")
 class_name  UIBehavior
-extends Node
+extends Resource
 
 
 signal finished()
 
 @export var duration: float = 1.0
-@export var reversable: bool = true
 
-var tween: Tween
+var assigned_element: UIElement3D
+var assigned_tween: Tween
+
 
 func setup(element: UIElement3D) -> void:
-	pass
+	assigned_element = element
 
 
 ## Override to implement specific behavior
-func run() -> void:
+func run(tween: Tween) -> void:
+	assigned_tween = tween
 	_when_finished()
 
 
 func reset() -> void:
-	tween.stop()
+	assigned_tween.stop()
+
+
+func reverse(tween: Tween) -> void:
+	assigned_tween = tween
 
 
 ## Called at the end of the 'run()' method; internal, DO NOT override
