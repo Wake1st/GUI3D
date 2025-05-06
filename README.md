@@ -45,4 +45,5 @@ These behaviors are assigned to a state, and will occur when said state is activ
 - ~follow the new method approach~
 	- ~reverse for state change~
 - working much better now, easier to read, and more stable
+- still off, but getting closer
 - does this really need to be an editor plugin?

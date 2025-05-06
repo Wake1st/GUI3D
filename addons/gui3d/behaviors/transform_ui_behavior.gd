@@ -7,30 +7,51 @@ extends UIBehavior
 @export var adjusted_rotation: Vector3
 @export var adjusted_scale: Vector3
 
+@export var mirrored: bool = false
+@export var relative_origin: bool = false
+
 var original_position: Vector3
 var original_rotation: Vector3
 var original_scale: Vector3
+
+var on_mirror: bool = false
 
 
 func setup(element: UIElement3D) -> void:
 	super.setup(element)
 	
 	# store initial states
-	original_position = element.position
-	original_rotation = element.rotation
-	original_scale = element.scale
+	original_position = assigned_element.position
+	original_rotation = assigned_element.rotation
+	original_scale = assigned_element.scale
 
 
 func run(tween: Tween) -> void:
+	# reset origin point
+	if relative_origin:
+		original_position = assigned_element.position
+		original_rotation = assigned_element.rotation
+		original_scale = assigned_element.scale
+	
 	# store acting element
 	assigned_tween = tween
 	
 	# execute transform behavior
-	_perform_transform(
-		original_position + adjusted_position,
-		original_rotation + adjusted_rotation,
-		original_scale + adjusted_scale,
-	)
+	if mirrored and on_mirror:
+		_perform_transform(
+			original_position - adjusted_position,
+			original_rotation - adjusted_rotation,
+			original_scale - adjusted_scale,
+		)
+	else:
+		_perform_transform(
+			original_position + adjusted_position,
+			original_rotation + adjusted_rotation,
+			original_scale + adjusted_scale,
+		)
+	
+	# flip the mirror
+	on_mirror = not on_mirror
 	
 	# if not reversed, then end it
 	assigned_tween.tween_callback(_on_complete)

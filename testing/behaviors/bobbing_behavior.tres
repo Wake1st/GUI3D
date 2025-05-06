@@ -6,6 +6,8 @@
 script = ExtResource("1_e43x4")
 adjusted_position = Vector3(0, 0, 0)
 adjusted_rotation = Vector3(0, 0, 0)
-adjusted_scale = Vector3(0.4, 0, 0)
+adjusted_scale = Vector3(0, 0.2, 0)
+mirrored = true
+relative_origin = true
 duration = 0.8
 metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"

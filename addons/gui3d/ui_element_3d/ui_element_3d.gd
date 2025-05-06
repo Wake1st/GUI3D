@@ -2,6 +2,16 @@ class_name UIElement3D
 extends MeshInstance3D
 
 
+enum UIInteractionState {
+	WHILE_IDLE,
+	ENTER_FOCUS,
+	WHILE_FOCUS,
+	EXIT_FOCUS,
+	ENTER_SELECT,
+	WHILE_SELECT,
+	EXIT_SELECT,
+}
+
 @export_group("Behaviors")
 @export_subgroup("While Idle", "idl_whl_")
 @export var idl_whl_behaviors: Array[UIBehavior]
@@ -20,8 +30,8 @@ var foc_whl_has_behaviors: bool
 var sel_chg_has_behaviors: bool
 var sel_whl_has_behaviors: bool
 
-var current_state: UIBehaviorState.UIInteractionState
-var next_state: UIBehaviorState.UIInteractionState
+var current_state: UIInteractionState
+var next_state: UIInteractionState
 
 var runningBehaviors: Array[UIBehavior]
 var runningBehaviorCount: int
@@ -51,48 +61,48 @@ func _process(_delta) -> void:
 		
 		# only run when finished
 		match current_state:
-			UIBehaviorState.UIInteractionState.WHILE_IDLE:
+			UIInteractionState.WHILE_IDLE:
 				if idl_whl_has_behaviors:
 					# the next state is the current state
 					loopingForward = not loopingForward
 					next_state = current_state
 					_run_behaviors(idl_whl_behaviors, loopingForward)
-			UIBehaviorState.UIInteractionState.ENTER_FOCUS:
+			UIInteractionState.ENTER_FOCUS:
 				if foc_chg_has_behaviors:
-					next_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
+					next_state = UIInteractionState.WHILE_FOCUS
 					_run_behaviors(foc_chg_behaviors, true)
 				else:
-					current_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
-			UIBehaviorState.UIInteractionState.WHILE_FOCUS:
+					current_state = UIInteractionState.WHILE_FOCUS
+			UIInteractionState.WHILE_FOCUS:
 				if foc_whl_has_behaviors:
 					# the next state is the current state
 					loopingForward = not loopingForward
 					next_state = current_state
 					_run_behaviors(foc_whl_behaviors, loopingForward)
-			UIBehaviorState.UIInteractionState.EXIT_FOCUS:
+			UIInteractionState.EXIT_FOCUS:
 				if foc_chg_has_behaviors:
-					next_state = UIBehaviorState.UIInteractionState.WHILE_IDLE
+					next_state = UIInteractionState.WHILE_IDLE
 					_run_behaviors(foc_chg_behaviors, false)
 				else:
-					current_state = UIBehaviorState.UIInteractionState.WHILE_IDLE
-			UIBehaviorState.UIInteractionState.ENTER_SELECT:
+					current_state = UIInteractionState.WHILE_IDLE
+			UIInteractionState.ENTER_SELECT:
 				if sel_chg_has_behaviors:
-					next_state = UIBehaviorState.UIInteractionState.WHILE_SELECT
+					next_state = UIInteractionState.WHILE_SELECT
 					_run_behaviors(sel_chg_behaviors, true)
 				else:
-					current_state = UIBehaviorState.UIInteractionState.WHILE_SELECT
-			UIBehaviorState.UIInteractionState.WHILE_SELECT:
+					current_state = UIInteractionState.WHILE_SELECT
+			UIInteractionState.WHILE_SELECT:
 				if sel_whl_has_behaviors:
 					# the next state is the current state
 					loopingForward = not loopingForward
 					next_state = current_state
 					_run_behaviors(sel_whl_behaviors, loopingForward)
-			UIBehaviorState.UIInteractionState.EXIT_SELECT:
+			UIInteractionState.EXIT_SELECT:
 				if sel_chg_has_behaviors:
-					next_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
+					next_state = UIInteractionState.WHILE_FOCUS
 					_run_behaviors(sel_chg_behaviors, false)
 				else:
-					current_state = UIBehaviorState.UIInteractionState.WHILE_FOCUS
+					current_state = UIInteractionState.WHILE_FOCUS
 #endregion
 
 #region InterruptFunctions
@@ -113,9 +123,9 @@ func focus(value: bool = true) -> void:
 	
 	# no matter the state, override the value
 	if value:
-		current_state = UIBehaviorState.UIInteractionState.ENTER_FOCUS
+		current_state = UIInteractionState.ENTER_FOCUS
 	else:
-		current_state = UIBehaviorState.UIInteractionState.EXIT_FOCUS
+		current_state = UIInteractionState.EXIT_FOCUS
 
 func select(value: bool = true) -> void:
 	# toggle interupt
@@ -130,9 +140,9 @@ func select(value: bool = true) -> void:
 	
 	# no matter the state, override the value
 	if value:
-		current_state = UIBehaviorState.UIInteractionState.ENTER_SELECT
+		current_state = UIInteractionState.ENTER_SELECT
 	else:
-		current_state = UIBehaviorState.UIInteractionState.EXIT_SELECT
+		current_state = UIInteractionState.EXIT_SELECT
 #endregion
 
 #region InternalFunctions
