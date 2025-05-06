@@ -13,9 +13,9 @@ var original_scale: Vector3
 
 func run() -> void:
 	# store initial states
-	original_position = get_parent().position
-	original_rotation = get_parent().rotation
-	original_scale = get_parent().scale
+	original_position = get_parent().get_parent().get_parent().position
+	original_rotation = get_parent().get_parent().get_parent().rotation
+	original_scale = get_parent().get_parent().get_parent().scale
 	
 	# execute transform behavior
 	_perform_transform(
@@ -37,9 +37,9 @@ func reset() -> void:
 	tween.stop()
 	
 	# restore initial states
-	get_parent().position = original_position
-	get_parent().rotation = original_rotation
-	get_parent().scale = original_scale
+	get_parent().get_parent().get_parent().position = original_position
+	get_parent().get_parent().get_parent().rotation = original_rotation
+	get_parent().get_parent().get_parent().scale = original_scale
 
 
 func _reverse() -> void:
@@ -62,19 +62,19 @@ func _perform_transform(
 	tween = create_tween()
 	tween.set_parallel(true)
 	tween.tween_property(
-		get_parent(), 
+		get_parent().get_parent().get_parent(), 
 		"position", 
 		target_position,
 		duration
 	)
 	tween.tween_property(
-		get_parent(),
+		get_parent().get_parent().get_parent(),
 		"rotation",
 		target_rotation,
 		duration
 	)
 	tween.tween_property(
-		get_parent(),
+		get_parent().get_parent().get_parent(),
 		"scale",
 		target_scale,
 		duration

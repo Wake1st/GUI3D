@@ -47,4 +47,5 @@ _ `_while_idle()`: runs while element is idle
 
 ## Dev Notes
 
-- [ ] needs a way of storing and resetting initial states
+- this feels overdesigned, needs stricter conditions
+- does this really need to be an editor plugin?

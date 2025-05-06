@@ -1,4 +1,3 @@
-@tool
 class_name UIElement3D
 extends MeshInstance3D
 
@@ -11,6 +10,7 @@ enum LOOPING_STATE {
 
 @export var behavior_states: Array[UIBehaviorState]
 
+var interupting: bool = false
 var isFocused: bool = false
 var isSelected: bool = false
 
@@ -38,25 +38,38 @@ func _ready() -> void:
 
 
 func _process(_delta) -> void:
-	# only run when finished
-	match looping_state:
-		LOOPING_STATE.LOOP:
-			_run_looping_behaviors()
-		LOOPING_STATE.TRANSITION:
-			match current_state:
-				UIBehaviorState.UIInteractionState.ENTER_FOCUS:
-					_enter_focus()
-				UIBehaviorState.UIInteractionState.EXIT_FOCUS:
-					_exit_focus()
-				UIBehaviorState.UIInteractionState.ENTER_SELECT:
-					_enter_select()
-				UIBehaviorState.UIInteractionState.EXIT_SELECT:
-					_exit_select()
+	# don't allow adding behaviors unless interupted
+	if interupting or runningBehaviorCount <= 0:
+		# interupt permitted once
+		interupting = false
+		
+		# only run when finished
+		#print("loop: %s\tbehavior: %s" % [looping_state, current_state])
+		match looping_state:
+			LOOPING_STATE.LOOP:
+				_run_looping_behaviors()
+			LOOPING_STATE.TRANSITION:
+				match current_state:
+					UIBehaviorState.UIInteractionState.ENTER_FOCUS:
+						_enter_focus()
+					UIBehaviorState.UIInteractionState.EXIT_FOCUS:
+						_exit_focus()
+					UIBehaviorState.UIInteractionState.ENTER_SELECT:
+						_enter_select()
+					UIBehaviorState.UIInteractionState.EXIT_SELECT:
+						_exit_select()
 #endregion
 
 
 #region InterruptFunctions
 func focus(value: bool = true) -> void:
+	# do not permit interuptions of selected element
+	if isSelected:
+		return
+	
+	# toggle interupt
+	interupting = true
+	
 	# set the state for external read
 	isFocused = value
 	
@@ -74,6 +87,9 @@ func focus(value: bool = true) -> void:
 
 
 func select(value: bool = true) -> void:
+	# toggle interupt
+	interupting = true
+	
 	# set the state for external read
 	isSelected = value
 	
@@ -94,6 +110,7 @@ func select(value: bool = true) -> void:
 #region BehaviorFunctions
 func _run_looping_behaviors() -> void:
 	# find behaviors with matching state
+	runningBehaviors.clear()
 	for bs: UIBehaviorState in behavior_states:
 		if bs.interaction_state == current_state:
 			runningBehaviors.push_back(bs.behavior)
@@ -143,6 +160,7 @@ func _exit_select() -> void:
 
 func _run_transition_behaviors() -> void:
 	# find behaviors with matching state
+	runningBehaviors.clear()
 	for bs: UIBehaviorState in behavior_states:
 		if bs.interaction_state == current_state:
 			runningBehaviors.push_back(bs.behavior)
@@ -163,12 +181,11 @@ func _run_transition_behaviors() -> void:
 #region InternalHanders
 func _on_behavior_finished() -> void:
 	# check if it's time to progress,
-	# only progress if transition required
+	# only transition states if transition required
 	runningBehaviorCount -= 1
 	if runningBehaviorCount <= 0 and looping_state == LOOPING_STATE.TRANSITION:
 		looping_state = LOOPING_STATE.LOOP
 		current_state = next_state
-
 
 func _on_mouse_entered() -> void:
 	focus(true)

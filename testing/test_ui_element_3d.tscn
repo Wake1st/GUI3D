@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=3 uid="uid://8dx7v4h4grwf"]
+[gd_scene load_steps=6 format=3 uid="uid://8dx7v4h4grwf"]
 
 [ext_resource type="PackedScene" uid="uid://cj3kjmierp73k" path="res://testing/custom_element_3d.tscn" id="1_bw4vf"]
 [ext_resource type="Script" uid="uid://bwnk2bncve0px" path="res://testing/test_ui_element_3d.gd" id="1_u3tte"]
+[ext_resource type="Script" uid="uid://csdblttwndwxg" path="res://addons/gui3d/behaviors/ui_behavior_state.gd" id="3_6eueh"]
+[ext_resource type="Script" uid="uid://cvx8k4s4ujkdr" path="res://addons/gui3d/behaviors/transform_ui_behavior.gd" id="4_d55og"]
 
 [sub_resource type="Environment" id="Environment_u3tte"]
 background_mode = 1
@@ -11,10 +13,50 @@ background_color = Color(0.370409, 0.818385, 1, 1)
 script = ExtResource("1_u3tte")
 
 [node name="UIElement3D" parent="." node_paths=PackedStringArray("behavior_states") instance=ExtResource("1_bw4vf")]
-behavior_states = []
+behavior_states = [NodePath("Behaviors/EnterFocusState"), NodePath("Behaviors/WhileSelectedState"), NodePath("Behaviors/ExitFocusState")]
+
+[node name="Behaviors" type="Node" parent="UIElement3D"]
+
+[node name="EnterFocusState" type="Node" parent="UIElement3D/Behaviors" node_paths=PackedStringArray("behavior")]
+script = ExtResource("3_6eueh")
+interaction_state = 1
+behavior = NodePath("TransformUIBehavior")
+metadata/_custom_type_script = "uid://csdblttwndwxg"
+
+[node name="TransformUIBehavior" type="Node" parent="UIElement3D/Behaviors/EnterFocusState"]
+script = ExtResource("4_d55og")
+adjusted_scale = Vector3(0.1, 0.2, 0)
+duration = 0.2
+reversable = false
+metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"
+
+[node name="ExitFocusState" type="Node" parent="UIElement3D/Behaviors" node_paths=PackedStringArray("behavior")]
+script = ExtResource("3_6eueh")
+interaction_state = 3
+behavior = NodePath("TransformUIBehavior")
+metadata/_custom_type_script = "uid://csdblttwndwxg"
+
+[node name="TransformUIBehavior" type="Node" parent="UIElement3D/Behaviors/ExitFocusState"]
+script = ExtResource("4_d55og")
+adjusted_scale = Vector3(-0.1, -0.2, 0)
+duration = 0.3
+reversable = false
+metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"
+
+[node name="WhileSelectedState" type="Node" parent="UIElement3D/Behaviors" node_paths=PackedStringArray("behavior")]
+script = ExtResource("3_6eueh")
+interaction_state = 5
+behavior = NodePath("TransformUIBehavior")
+metadata/_custom_type_script = "uid://csdblttwndwxg"
+
+[node name="TransformUIBehavior" type="Node" parent="UIElement3D/Behaviors/WhileSelectedState"]
+script = ExtResource("4_d55og")
+adjusted_scale = Vector3(0.2, 0.1, 0)
+duration = 0.8
+metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1.11618)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.0031)
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_u3tte")

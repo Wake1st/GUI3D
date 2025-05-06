@@ -1,41 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://cj3kjmierp73k"]
+[gd_scene load_steps=3 format=3 uid="uid://cj3kjmierp73k"]
 
 [ext_resource type="Script" uid="uid://5f1f8n1nmxta" path="res://addons/gui3d/ui_element_3d/ui_element_3d.gd" id="1_vwp0v"]
-[ext_resource type="Script" uid="uid://csdblttwndwxg" path="res://addons/gui3d/behaviors/ui_behavior_state.gd" id="2_c0siw"]
-[ext_resource type="Script" uid="uid://cvx8k4s4ujkdr" path="res://addons/gui3d/behaviors/transform_ui_behavior.gd" id="3_vl32r"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_j85yx"]
 
-[node name="UIElement3D" type="MeshInstance3D" node_paths=PackedStringArray("behavior_states")]
+[node name="UIElement3D" type="MeshInstance3D"]
 mesh = SubResource("QuadMesh_j85yx")
 script = ExtResource("1_vwp0v")
-behavior_states = [NodePath("Behaviors/EnterFocusState"), NodePath("Behaviors/WhileSelectedState")]
 metadata/_custom_type_script = "uid://5f1f8n1nmxta"
-
-[node name="Behaviors" type="Node" parent="."]
-
-[node name="EnterFocusState" type="Node" parent="Behaviors" node_paths=PackedStringArray("behavior")]
-script = ExtResource("2_c0siw")
-interaction_state = 1
-behavior = NodePath("TransformUIBehavior")
-metadata/_custom_type_script = "uid://csdblttwndwxg"
-
-[node name="TransformUIBehavior" type="Node" parent="Behaviors/EnterFocusState"]
-script = ExtResource("3_vl32r")
-adjusted_position = Vector3(0, 0, 0.2)
-adjusted_scale = Vector3(0.1, 0.2, 0)
-duration = 0.2
-reversable = false
-metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"
-
-[node name="WhileSelectedState" type="Node" parent="Behaviors" node_paths=PackedStringArray("behavior")]
-script = ExtResource("2_c0siw")
-interaction_state = 5
-behavior = NodePath("TransformUIBehavior")
-metadata/_custom_type_script = "uid://csdblttwndwxg"
-
-[node name="TransformUIBehavior" type="Node" parent="Behaviors/WhileSelectedState"]
-script = ExtResource("3_vl32r")
-adjusted_scale = Vector3(0.2, 0.1, 0)
-duration = 0.8
-metadata/_custom_type_script = "uid://cvx8k4s4ujkdr"
