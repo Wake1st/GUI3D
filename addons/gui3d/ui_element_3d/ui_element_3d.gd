@@ -12,6 +12,9 @@ enum UIInteractionState {
 	EXIT_SELECT,
 }
 
+signal focus_changed(element: UIElement3D)
+signal select_changed(element: UIElement3D)
+
 @export_group("Behaviors")
 @export_subgroup("While Idle", "idl_whl_")
 @export var idl_whl_behaviors: Array[UIBehavior]
@@ -73,6 +76,7 @@ func _process(_delta) -> void:
 					_run_behaviors(foc_chg_behaviors, true)
 				else:
 					current_state = UIInteractionState.WHILE_FOCUS
+					interupting = true
 			UIInteractionState.WHILE_FOCUS:
 				if foc_whl_has_behaviors:
 					# the next state is the current state
@@ -85,12 +89,14 @@ func _process(_delta) -> void:
 					_run_behaviors(foc_chg_behaviors, false)
 				else:
 					current_state = UIInteractionState.WHILE_IDLE
+					interupting = true
 			UIInteractionState.ENTER_SELECT:
 				if sel_chg_has_behaviors:
 					next_state = UIInteractionState.WHILE_SELECT
 					_run_behaviors(sel_chg_behaviors, true)
 				else:
 					current_state = UIInteractionState.WHILE_SELECT
+					interupting = true
 			UIInteractionState.WHILE_SELECT:
 				if sel_whl_has_behaviors:
 					# the next state is the current state
@@ -103,6 +109,7 @@ func _process(_delta) -> void:
 					_run_behaviors(sel_chg_behaviors, false)
 				else:
 					current_state = UIInteractionState.WHILE_FOCUS
+					interupting = true
 #endregion
 
 #region InterruptFunctions
@@ -116,6 +123,7 @@ func focus(value: bool = true) -> void:
 	
 	# set the state for external read
 	isFocused = value
+	emit_signal("focus_changed")
 	
 	# reset all running behaviors
 	for behavior in runningBehaviors:
@@ -133,6 +141,7 @@ func select(value: bool = true) -> void:
 	
 	# set the state for external read
 	isSelected = value
+	emit_signal("select_changed")
 	
 	# reset all running behaviors
 	for behavior in runningBehaviors:

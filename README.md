@@ -45,5 +45,7 @@ These behaviors are assigned to a state, and will occur when said state is activ
 - ~follow the new method approach~
 	- ~reverse for state change~
 - working much better now, easier to read, and more stable
-- still off, but getting closer
-- does this really need to be an editor plugin?
+- ~still off, but getting closer~
+- working well, next should be the element set handling
+- ~does this really need to be an editor plugin?~ no
+- make a simple layout, but the interactions are what matters

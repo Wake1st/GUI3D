@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://ct760t5bd5kqf"]
+
+[ext_resource type="Script" uid="uid://d3rprp1u8v0lt" path="res://addons/gui3d/ui_container_3d/ui_container_3d.gd" id="1_bv3vr"]
+
+[node name="UIContainer3D" type="Node3D"]
+script = ExtResource("1_bv3vr")
