@@ -46,7 +46,7 @@ var loopingForward: bool = false
 
 
 #region IncludedFunctions
-func _ready() -> void:
+func setup() -> void:
 	_setup_collition()
 	
 	# connect all behaviors
@@ -114,8 +114,8 @@ func _process(_delta) -> void:
 
 #region InterruptFunctions
 func focus(value: bool = true) -> void:
-	# do not permit interuptions of selected element
-	if isSelected:
+	# do not allow to focus again or interuptions of selected element
+	if isFocused || isSelected:
 		return
 	
 	# toggle interupt
@@ -123,7 +123,7 @@ func focus(value: bool = true) -> void:
 	
 	# set the state for external read
 	isFocused = value
-	emit_signal("focus_changed")
+	emit_signal("focus_changed", self)
 	
 	# reset all running behaviors
 	for behavior in runningBehaviors:
@@ -136,12 +136,16 @@ func focus(value: bool = true) -> void:
 		current_state = UIInteractionState.EXIT_FOCUS
 
 func select(value: bool = true) -> void:
+	# do not allow to select again
+	if isSelected:
+		return
+	
 	# toggle interupt
 	interupting = true
 	
 	# set the state for external read
 	isSelected = value
-	emit_signal("select_changed")
+	emit_signal("select_changed", self)
 	
 	# reset all running behaviors
 	for behavior in runningBehaviors:

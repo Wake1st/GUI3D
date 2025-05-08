@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://cl2h7rd6xnhr6"]
+
+[ext_resource type="Script" uid="uid://h7qij7pvbmny" path="res://testing/interactions/test_ui_container_3d.gd" id="1_hpm6c"]
+[ext_resource type="PackedScene" uid="uid://ct760t5bd5kqf" path="res://addons/gui3d/ui_container_3d/ui_container_3d.tscn" id="1_kxc6j"]
+[ext_resource type="PackedScene" uid="uid://c42qorabms1pu" path="res://testing/interactions/menu_option.tscn" id="3_hpm6c"]
+
+[sub_resource type="Environment" id="Environment_11hft"]
+background_mode = 1
+background_color = Color(0.370409, 0.818385, 1, 1)
+
+[node name="TestUIContainer3D" type="Node3D"]
+script = ExtResource("1_hpm6c")
+
+[node name="UIContainer3D" parent="." node_paths=PackedStringArray("elements") instance=ExtResource("1_kxc6j")]
+elements = [NodePath("MenuOption"), NodePath("MenuOption2"), NodePath("MenuOption3"), NodePath("MenuOption4"), NodePath("MenuOption5"), NodePath("MenuOption6")]
+columns = 2
+row_spacing = 1.1
+column_spacing = 1.4
+
+[node name="MenuOption" parent="UIContainer3D" instance=ExtResource("3_hpm6c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 1.1, 0)
+
+[node name="MenuOption2" parent="UIContainer3D" instance=ExtResource("3_hpm6c")]
+option = 1
+
+[node name="MenuOption3" parent="UIContainer3D" instance=ExtResource("3_hpm6c")]
+option = 2
+
+[node name="MenuOption4" parent="UIContainer3D" instance=ExtResource("3_hpm6c")]
+option = 3
+
+[node name="MenuOption5" parent="UIContainer3D" instance=ExtResource("3_hpm6c")]
+option = 4
+
+[node name="MenuOption6" parent="UIContainer3D" instance=ExtResource("3_hpm6c")]
+option = 5
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.38996)
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_11hft")
