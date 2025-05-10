@@ -49,3 +49,8 @@ These behaviors are assigned to a state, and will occur when said state is activ
 - working well, next should be the element set handling
 - ~does this really need to be an editor plugin?~ no
 - make a simple layout, but the interactions are what matters
+- the behaviors are not consistent
+	- this is becoming overdesigned
+	- there are perhaps too many exceptions and checks
+	- there is only one instance being shared
+	- its working

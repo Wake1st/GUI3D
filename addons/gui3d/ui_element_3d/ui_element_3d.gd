@@ -27,11 +27,11 @@ signal select_changed(element: UIElement3D)
 @export_subgroup("While Selected", "sel_whl_")
 @export var sel_whl_behaviors: Array[UIBehavior]
 
-var idl_whl_has_behaviors: bool
-var foc_chg_has_behaviors: bool
-var foc_whl_has_behaviors: bool
-var sel_chg_has_behaviors: bool
-var sel_whl_has_behaviors: bool
+var has_idl_whl_behaviors: bool
+var has_foc_chg_behaviors: bool
+var has_foc_whl_behaviors: bool
+var has_sel_chg_behaviors: bool
+var has_sel_whl_behaviors: bool
 
 var current_state: UIInteractionState
 var next_state: UIInteractionState
@@ -46,15 +46,20 @@ var loopingForward: bool = false
 
 
 #region IncludedFunctions
-func setup() -> void:
+func _ready() -> void:
 	_setup_collition()
 	
 	# connect all behaviors
-	idl_whl_has_behaviors = _setup_behaviors(idl_whl_behaviors)
-	foc_chg_has_behaviors = _setup_behaviors(foc_chg_behaviors)
-	foc_whl_has_behaviors = _setup_behaviors(foc_whl_behaviors)
-	sel_chg_has_behaviors = _setup_behaviors(sel_chg_behaviors)
-	sel_whl_has_behaviors = _setup_behaviors(sel_whl_behaviors)
+	idl_whl_behaviors = _setup_behaviors(idl_whl_behaviors)
+	has_idl_whl_behaviors = idl_whl_behaviors.size() > 0
+	foc_chg_behaviors = _setup_behaviors(foc_chg_behaviors)
+	has_foc_chg_behaviors = foc_chg_behaviors.size() > 0
+	foc_whl_behaviors = _setup_behaviors(foc_whl_behaviors)
+	has_foc_whl_behaviors = foc_whl_behaviors.size() > 0
+	sel_chg_behaviors = _setup_behaviors(sel_chg_behaviors)
+	has_sel_chg_behaviors = sel_chg_behaviors.size() > 0
+	sel_whl_behaviors = _setup_behaviors(sel_whl_behaviors)
+	has_sel_whl_behaviors = sel_whl_behaviors.size() > 0
 
 func _process(_delta) -> void:
 	# don't allow adding behaviors unless interupted
@@ -65,46 +70,46 @@ func _process(_delta) -> void:
 		# only run when finished
 		match current_state:
 			UIInteractionState.WHILE_IDLE:
-				if idl_whl_has_behaviors:
+				if has_idl_whl_behaviors:
 					# the next state is the current state
 					loopingForward = not loopingForward
 					next_state = current_state
 					_run_behaviors(idl_whl_behaviors, loopingForward)
 			UIInteractionState.ENTER_FOCUS:
-				if foc_chg_has_behaviors:
+				if has_foc_chg_behaviors:
 					next_state = UIInteractionState.WHILE_FOCUS
 					_run_behaviors(foc_chg_behaviors, true)
 				else:
 					current_state = UIInteractionState.WHILE_FOCUS
 					interupting = true
 			UIInteractionState.WHILE_FOCUS:
-				if foc_whl_has_behaviors:
+				if has_foc_whl_behaviors:
 					# the next state is the current state
 					loopingForward = not loopingForward
 					next_state = current_state
 					_run_behaviors(foc_whl_behaviors, loopingForward)
 			UIInteractionState.EXIT_FOCUS:
-				if foc_chg_has_behaviors:
+				if has_foc_chg_behaviors:
 					next_state = UIInteractionState.WHILE_IDLE
 					_run_behaviors(foc_chg_behaviors, false)
 				else:
 					current_state = UIInteractionState.WHILE_IDLE
 					interupting = true
 			UIInteractionState.ENTER_SELECT:
-				if sel_chg_has_behaviors:
+				if has_sel_chg_behaviors:
 					next_state = UIInteractionState.WHILE_SELECT
 					_run_behaviors(sel_chg_behaviors, true)
 				else:
 					current_state = UIInteractionState.WHILE_SELECT
 					interupting = true
 			UIInteractionState.WHILE_SELECT:
-				if sel_whl_has_behaviors:
+				if has_sel_whl_behaviors:
 					# the next state is the current state
 					loopingForward = not loopingForward
 					next_state = current_state
 					_run_behaviors(sel_whl_behaviors, loopingForward)
 			UIInteractionState.EXIT_SELECT:
-				if sel_chg_has_behaviors:
+				if has_sel_chg_behaviors:
 					next_state = UIInteractionState.WHILE_FOCUS
 					_run_behaviors(sel_chg_behaviors, false)
 				else:
@@ -114,8 +119,8 @@ func _process(_delta) -> void:
 
 #region InterruptFunctions
 func focus(value: bool = true) -> void:
-	# do not allow to focus again or interuptions of selected element
-	if isFocused || isSelected:
+	# selected overrides focused and check for actual change
+	if isSelected || isFocused == value:
 		return
 	
 	# toggle interupt
@@ -125,19 +130,23 @@ func focus(value: bool = true) -> void:
 	isFocused = value
 	emit_signal("focus_changed", self)
 	
-	# reset all running behaviors
-	for behavior in runningBehaviors:
-		behavior.reset()
-	
 	# no matter the state, override the value
 	if value:
 		current_state = UIInteractionState.ENTER_FOCUS
+		_reset_running_behaviors()
 	else:
-		current_state = UIInteractionState.EXIT_FOCUS
+		# if there's no change state, we should manually reverse the while state
+		if not has_foc_chg_behaviors and has_foc_whl_behaviors:
+			next_state = UIInteractionState.EXIT_FOCUS
+			_run_behaviors(foc_whl_behaviors, false)
+			interupting = false
+		else:
+			current_state = UIInteractionState.EXIT_FOCUS
+			_reset_running_behaviors()
 
 func select(value: bool = true) -> void:
-	# do not allow to select again
-	if isSelected:
+	# check for an actual change
+	if isSelected == value:
 		return
 	
 	# toggle interupt
@@ -147,32 +156,42 @@ func select(value: bool = true) -> void:
 	isSelected = value
 	emit_signal("select_changed", self)
 	
-	# reset all running behaviors
-	for behavior in runningBehaviors:
-		behavior.reset()
-	
 	# no matter the state, override the value
 	if value:
 		current_state = UIInteractionState.ENTER_SELECT
+		_reset_running_behaviors()
 	else:
-		current_state = UIInteractionState.EXIT_SELECT
+		# if there's no change state, we should manually reverse the while state
+		if not has_sel_chg_behaviors and has_sel_whl_behaviors:
+			next_state = UIInteractionState.EXIT_SELECT
+			_run_behaviors(sel_whl_behaviors, false)
+			interupting = false
+		else:
+			current_state = UIInteractionState.EXIT_SELECT
+			_reset_running_behaviors()
 #endregion
 
 #region InternalFunctions
 func _setup_collition() -> void:
 	# create a static body child
-	create_trimesh_collision()
+	#create_trimesh_collision()
 	
 	# connect collision shape
-	var staticBody: StaticBody3D = get_child(0)
+	var staticBody: StaticBody3D = get_node("StaticBody3D")
 	staticBody.mouse_entered.connect(_on_mouse_entered)
 	staticBody.mouse_exited.connect(_on_mouse_exited)
 
-func _setup_behaviors(behaviors: Array[UIBehavior]) -> bool:
+func _setup_behaviors(behaviors: Array[UIBehavior]) -> Array[UIBehavior]:
+	# duplicate the behaviors for them to be unique per element
+	var copies: Array[UIBehavior]
 	for behavior in behaviors:
-		behavior.setup(self)
-		behavior.finished.connect(_on_behavior_finished)
-	return behaviors.size() > 0
+		var copy = behavior.duplicate(true)
+		copy.setup(self)
+		copy.finished.connect(_on_behavior_finished)
+		copies.push_back(copy)
+	
+	# return duplicate array
+	return copies
 
 func _run_behaviors(behaviors: Array[UIBehavior], forward: bool = true) -> void:
 	# find behaviors with matching state
@@ -190,6 +209,11 @@ func _run_behaviors(behaviors: Array[UIBehavior], forward: bool = true) -> void:
 			behavior.run(tween)
 		else:
 			behavior.reverse(tween)
+
+func _reset_running_behaviors() -> void:
+	# reset all running behaviors
+	for behavior in runningBehaviors:
+		behavior.reset()
 #endregion
 
 #region InternalHanders

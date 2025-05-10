@@ -1,21 +1,16 @@
-[gd_scene load_steps=12 format=3 uid="uid://8dx7v4h4grwf"]
+[gd_scene load_steps=9 format=3 uid="uid://8dx7v4h4grwf"]
 
 [ext_resource type="Script" uid="uid://bwnk2bncve0px" path="res://testing/interactions/test_ui_element_3d.gd" id="1_u3tte"]
 [ext_resource type="PackedScene" uid="uid://c8pdlyyudpf5j" path="res://addons/gui3d/ui_element_3d/ui_element_3d.tscn" id="2_80fue"]
 [ext_resource type="Script" uid="uid://bbpn8ap46phii" path="res://addons/gui3d/behaviors/ui_behavior.gd" id="3_qtedj"]
 [ext_resource type="Resource" uid="uid://8ak4bgbhtced" path="res://testing/behaviors/scaling_behavior.tres" id="4_qurmq"]
-[ext_resource type="Resource" uid="uid://bhs6f2e58ts8o" path="res://testing/behaviors/small_scaling_behavior.tres" id="5_1kp2h"]
-[ext_resource type="Resource" uid="uid://dnqcvml8egf4w" path="res://testing/behaviors/bobbing_behavior.tres" id="5_qurmq"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_qurmq"]
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_q6cip"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_x0ymi"]
 data = PackedVector3Array(0.5, -0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0)
 
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_oe71y"]
-data = PackedVector3Array(0.5, -0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0)
-
-[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_7i14h"]
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_58j6a"]
 data = PackedVector3Array(0.5, -0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, -0.5, 0, -0.5, 0.5, 0, 0.5, 0.5, 0)
 
 [sub_resource type="Environment" id="Environment_u3tte"]
@@ -26,25 +21,24 @@ background_color = Color(0.370409, 0.818385, 1, 1)
 script = ExtResource("1_u3tte")
 
 [node name="UIElement3D" parent="." instance=ExtResource("2_80fue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 0)
 mesh = SubResource("QuadMesh_qurmq")
-foc_chg_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("4_qurmq")])
-foc_whl_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("5_1kp2h")])
-sel_whl_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("5_qurmq")])
+foc_whl_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("4_qurmq")])
 
-[node name="UIElement3D_col" type="StaticBody3D" parent="UIElement3D"]
+[node name="StaticBody3D" type="StaticBody3D" parent="UIElement3D"]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="UIElement3D/UIElement3D_col"]
-shape = SubResource("ConcavePolygonShape3D_q6cip")
+[node name="CollisionShape3D" type="CollisionShape3D" parent="UIElement3D/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_x0ymi")
 
-[node name="UIElement3D_col2" type="StaticBody3D" parent="UIElement3D"]
+[node name="UIElement3D2" parent="." instance=ExtResource("2_80fue")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
+mesh = SubResource("QuadMesh_qurmq")
+foc_whl_behaviors = Array[ExtResource("3_qtedj")]([ExtResource("4_qurmq")])
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="UIElement3D/UIElement3D_col2"]
-shape = SubResource("ConcavePolygonShape3D_oe71y")
+[node name="StaticBody3D" type="StaticBody3D" parent="UIElement3D2"]
 
-[node name="UIElement3D_col3" type="StaticBody3D" parent="UIElement3D"]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="UIElement3D/UIElement3D_col3"]
-shape = SubResource("ConcavePolygonShape3D_7i14h")
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="UIElement3D2/StaticBody3D"]
+shape = SubResource("ConcavePolygonShape3D_58j6a")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.0031)

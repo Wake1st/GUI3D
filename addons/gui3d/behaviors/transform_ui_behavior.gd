@@ -27,6 +27,7 @@ func setup(element: UIElement3D) -> void:
 
 
 func run(tween: Tween) -> void:
+	print("running for: %s" % assigned_element.name)
 	# reset origin point
 	if relative_origin:
 		original_position = assigned_element.position

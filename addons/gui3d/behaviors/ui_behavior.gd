@@ -12,6 +12,7 @@ var assigned_tween: Tween
 
 
 func setup(element: UIElement3D) -> void:
+	print("behavior for : %s" % element.name)
 	assigned_element = element
 
 
